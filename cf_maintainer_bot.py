@@ -304,6 +304,7 @@ def main():
         successful_updates.append(update)
         successful_forks.append(fork)
 
+    subprocess.run(['conda', 'update', '-y', 'conda-smithy'])
     for fork in tqdm(successful_forks):
         subprocess.run(["./renderer.sh",
                         user.login,
