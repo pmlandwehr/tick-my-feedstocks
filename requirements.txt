@@ -1,0 +1,7 @@
+beautifulsoup4
+jinja2
+pyyaml
+pygithub
+requests
+setuptools
+tqdm
