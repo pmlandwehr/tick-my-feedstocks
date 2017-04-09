@@ -10,7 +10,7 @@ python cf_maintainer_bot.py <user> <password_or_oauth>
 
 On execution, the program will:
 * Identify all of the feedstocks that the user maintains.
-* Identify those that are behind their corresponding pypi versions.
+* Identify those that are behind their corresponding [pypi](https://pypi.python.org/pypi) versions.
 * Filter this list for the subset that don't depend on any other out-of-date feedstocks.
 * For each feedstock *f* in the remaining list:
     * Attempt to trivially patch *f* by updating its version number and hash checksum.
