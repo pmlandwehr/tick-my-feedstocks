@@ -1,6 +1,6 @@
 ## cf_maintainer_bot
 
-This is a program designed to help keep any [conda-forge](https://conda-forge.github.io/) feedstocks that you administer up to do date. It's *not* a polished, up-to-date package. It's a supplement to help folks eyeball their packages more easily, not a replacement.
+This is a program designed to help keep any [conda-forge](https://conda-forge.github.io/) feedstocks that you administer up to do date. It's *not* a polished, up-to-date package. It's a supplement to help folks eyeball their packages more easily, not a replacement for checking all of your packages.
 
 To use it:
 
@@ -10,7 +10,7 @@ python cf_maintainer_bot.py <user> <password_or_oauth>
 
 On execution, the program will:
 * Identify all of the feedstocks that the user maintains.
-* Identify those that are behind their corresponding pypi versions.
+* Identify those that are behind their corresponding [pypi](https://pypi.python.org/pypi) versions.
 * Filter this list for the subset that don't depend on any other out-of-date feedstocks.
 * For each feedstock *f* in the remaining list:
     * Attempt to trivially patch *f* by updating its version number and hash checksum.
