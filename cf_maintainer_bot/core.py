@@ -236,23 +236,20 @@ def even_feedstock_fork(user, feedstock):
     return fork
 
 
-def main():
+def cf_maintainer_bot(gh_user, gh_password):
     """
     Finds all of the feedstocks a user maintains that can be updated without
     a dependency conflict with other feedstocks the user maintains,
     creates forks, ticks versions and hashes, and rerenders,
     then submits a pull
+    :param str gh_user: github username
+    :param str gh_password: github password or oauth token
     """
-    parser = argparse.ArgumentParser()
-    parser.add_argument('gh_user', help='GitHub username')
-    parser.add_argument('gh_password', help='GitHub password or auth token')
-    args = parser.parse_args()
-
-    g = Github(args['gh_user'], args['gh_password'])
+    g = Github(gh_user, gh_password)
     user = g.get_user()
 
     feedstocks = user_feedstocks(user)
-    statuses = [feedstock_status(user, feedstock, args['gh_password'])
+    statuses = [feedstock_status(user, feedstock, gh_password)
                 for feedstock in tqdm(feedstocks)]
 
     can_be_updated = []
@@ -293,7 +290,7 @@ def main():
         # patch fork
         r = requests.put('https://api.github.com/{}/contents/recipe/meta.yaml'.format(fork.full_name),
                          json=patch[1],
-                         auth=(user.login, args['gh_password']))
+                         auth=(user.login, gh_password))
 
         if not r.ok:
             # something broke.
@@ -308,7 +305,7 @@ def main():
     for fork in tqdm(successful_forks):
         subprocess.run(["./renderer.sh",
                         user.login,
-                        args['gh_password'],
+                        gh_password,
                         fork.full_name[12:]])
 
     # Log updates that couldn't be perfomed
@@ -318,6 +315,18 @@ def main():
     # Log updates that failed
     for status in failed_updates:
         pass
+
+
+def main():
+    """
+    Get user input, initiate cf_maintainer_bot
+    """
+    parser = argparse.ArgumentParser()
+    parser.add_argument('gh_user', help='GitHub username')
+    parser.add_argument('gh_password', help='GitHub password or auth token')
+    args = parser.parse_args()
+    
+    cf_maintainer_bot(args['gh_user'], args['gh_password'])
 
 
 if __name__ == "__main__":
