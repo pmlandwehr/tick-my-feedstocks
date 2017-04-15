@@ -191,7 +191,7 @@ def feedstock_status(feedstock):
 
 def get_user_fork(user, feedstock):
     """
-
+    Return a user's fork of a feedstock if one exists, else create a new one.
     :param github.AuthenticatedUser.AuthenticatedUser user:
     :param github.Repository.Repository feedstock:
     :return: `github.Repository.Repository` -- fork of the feedstock beloging to user
@@ -208,7 +208,7 @@ def even_feedstock_fork(user, feedstock):
     Return a fork that's even with the latest version of the feedstock
     If the user has a fork that's ahead of the feedstock, do nothing
     :param github.AuthenticatedUser.AuthenticatedUser: GitHub user
-    :param `github.Repository.Repository` feedstock:
+    :param github.Repository.Repository feedstock:
     :return: `None|github.Repository.Repository` -- Status message
     """
     fork = get_user_fork(user, feedstock)
@@ -257,7 +257,7 @@ def tick_feedstocks(gh_user, gh_password):
         if status.success and status.needs_update:
             can_be_updated.append((fs, status))
         else:
-            cannot_be_updated.append((fs, status))
+            cannot_be_updated.append((fs.full_name, status.data))
 
     package_names = set([x[0].full_name[12:-10] for x in can_be_updated])
 
@@ -288,7 +288,8 @@ def tick_feedstocks(gh_user, gh_password):
             continue
 
         # patch fork
-        r = requests.put('https://api.github.com/{}/contents/recipe/meta.yaml'.format(fork.full_name),
+        r = requests.put(
+            'https://api.github.com/{}/contents/recipe/meta.yaml'.format(fork.full_name),
                          json=patch[1],
                          auth=(user.login, gh_password))
 
@@ -308,12 +309,15 @@ def tick_feedstocks(gh_user, gh_password):
                         fork.full_name[12:]])
 
     # Log updates that couldn't be performed
-    for status in cannot_be_updated:
-        pass
+    print('Couldn\'t update:')
+    for tpl in cannot_be_updated:
+        print('  {}: {}'.format(tpl[0], tpl[1]))
+
 
     # Log updates that failed
-    for status in failed_updates:
-        pass
+    print('Failed to update:')
+    for update in failed_updates:
+        print(' {}'.format(update[0].full_name))
 
 
 def main():
