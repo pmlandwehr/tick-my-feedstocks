@@ -16,7 +16,9 @@ import yaml
 
 pypi_pkg_uri = 'https://pypi.python.org/pypi/{}/json'.format
 
-fs_tuple = namedtuple('fs_status', 'success needs_update data')
+fs_tuple = namedtuple('fs_status', 'success '
+                                   'needs_update '
+                                   'data')
 
 status_data_tuple = namedtuple('status_data', 'text '
                                               'yaml_strs '
@@ -97,7 +99,7 @@ def basic_patch(text, yaml_strs, pypi_version, blob_sha):
     :param dict yaml_strs:
     :param str pypi_version:
     :param str blob_sha:
-    :return: `tpl(bool,str|dict)` True if success and commit dict for github, false and error otherwise 
+    :return: `tpl(bool,str|dict)` -- True if success and commit dict for github, false and error otherwise
     """
     pypi_sha = pypi_org_sha(
         '-'.join(yaml_strs['source_fn'].split('-')[:-1]),
@@ -118,8 +120,7 @@ def basic_patch(text, yaml_strs, pypi_version, blob_sha):
 
     commit_dict = {
         'message': 'Tick version to {}'.format(pypi_version),
-        'content': b64encode(new_text.encode('utf-8')).
-            decode('utf-8'),
+        'content': b64encode(new_text.encode('utf-8')).decode('utf-8'),
         'sha': blob_sha
     }
 
@@ -128,8 +129,8 @@ def basic_patch(text, yaml_strs, pypi_version, blob_sha):
 
 def user_feedstocks(user):
     """
-    :param github.AuthenticatedUser.AutheticatedUser user: 
-    :return: `list` -- list of conda-forge feedstocks the user maintains 
+    :param github.AuthenticatedUser.AutheticatedUser user:
+    :return: `list` -- list of conda-forge feedstocks the user maintains
     """
     feedstocks = []
     for team in tqdm(user.get_teams()):
@@ -146,12 +147,10 @@ def user_feedstocks(user):
     return feedstocks
 
 
-def feedstock_status(user, feedstock, gh_password):
+def feedstock_status(feedstock):
     """
     Return whether or not a feedstock is out of date and any information needed to update it.
-    :param github.NamedUser.NamedUser user: 
     :param github.Repository.Repository feedstock:
-    :param gh_password: 
     :return: `tpl(bool,bool,obj)` -- bools indicating success and either None or a tuple of data
     """
 
@@ -192,9 +191,9 @@ def feedstock_status(user, feedstock, gh_password):
 
 def get_user_fork(user, feedstock):
     """
-    
+
     :param github.AuthenticatedUser.AuthenticatedUser user:
-    :param github.Repository.Repository feedstock: 
+    :param github.Repository.Repository feedstock:
     :return: `github.Repository.Repository` -- fork of the feedstock beloging to user
     """
     for fork in feedstock.get_forks():
@@ -236,7 +235,7 @@ def even_feedstock_fork(user, feedstock):
     return fork
 
 
-def cf_maintainer_bot(gh_user, gh_password):
+def tick_feedstocks(gh_user, gh_password):
     """
     Finds all of the feedstocks a user maintains that can be updated without
     a dependency conflict with other feedstocks the user maintains,
@@ -262,7 +261,8 @@ def cf_maintainer_bot(gh_user, gh_password):
 
     package_names = set([x[0].full_name[12:-10] for x in can_be_updated])
 
-    indep_updates = [x for x in can_be_updated if len(x[1].data.reqs & package_names) < 1]
+    indep_updates = [x for x in can_be_updated
+                     if len(x[1].data.reqs & package_names) < 1]
 
     successful_forks = []
     successful_updates = []
@@ -297,7 +297,6 @@ def cf_maintainer_bot(gh_user, gh_password):
             failed_updates.append(update)
             continue
 
-
         successful_updates.append(update)
         successful_forks.append(fork)
 
@@ -308,7 +307,7 @@ def cf_maintainer_bot(gh_user, gh_password):
                         gh_password,
                         fork.full_name[12:]])
 
-    # Log updates that couldn't be perfomed
+    # Log updates that couldn't be performed
     for status in cannot_be_updated:
         pass
 
@@ -325,8 +324,8 @@ def main():
     parser.add_argument('gh_user', help='GitHub username')
     parser.add_argument('gh_password', help='GitHub password or auth token')
     args = parser.parse_args()
-    
-    cf_maintainer_bot(args['gh_user'], args['gh_password'])
+
+    tick_feedstocks(args['gh_user'], args['gh_password'])
 
 
 if __name__ == "__main__":
