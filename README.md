@@ -1,11 +1,11 @@
-## cf_maintainer_bot
+## tick-feedstocks
 
 This is a program designed to help keep any [conda-forge](https://conda-forge.github.io/) feedstocks that you administer up to do date. It's *not* a polished, up-to-date package. It's a supplement to help folks eyeball their packages more easily, not a replacement for checking all of your packages.
 
 To use it:
 
 ```bash
-python cf_maintainer_bot.py <user> <password_or_oauth>
+python tick-feedstocks/core.py <user> <password_or_oauth>
 ```
 
 On execution, the program will:
@@ -18,4 +18,4 @@ On execution, the program will:
     * Submit a pull request for *f* to the origin on conda-forge.
 
 
-Recipes submitted using this bot **SHOULD BE DOUBLE-CHECKED**. Because we do limited testing of conda-forge packages, it's quite possible that after a version requirement has been changed upstream the CIs won't throw an error. So, before merging any bot-submitted pulls, please make sure that all of the requirements are still correct.
+Recipes versioned in this manner **SHOULD BE DOUBLE-CHECKED**. Because we do limited testing of conda-forge packages, it's quite possible that after a version requirement has been changed upstream the CIs won't throw an error. So, before merging any bot-submitted pulls, please make sure that all of the requirements are still correct.
