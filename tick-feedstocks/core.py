@@ -207,9 +207,9 @@ def even_feedstock_fork(user, feedstock):
     """
     Return a fork that's even with the latest version of the feedstock
     If the user has a fork that's ahead of the feedstock, do nothing
-    :param github.AuthenticatedUser.AuthenticatedUser: GitHub user
-    :param github.Repository.Repository feedstock:
-    :return: `None|github.Repository.Repository` -- Status message
+    :param github.AuthenticatedUser.AuthenticatedUser user: GitHub user
+    :param github.Repository.Repository feedstock: conda-forge feedstock
+    :return: `None|github.Repository.Repository` -- None if no fork, else the repository
     """
     fork = get_user_fork(user, feedstock)
 
@@ -235,20 +235,24 @@ def even_feedstock_fork(user, feedstock):
     return fork
 
 
-def tick_feedstocks(gh_user, gh_password):
+def tick_feedstocks(gh_password, gh_user=None):
     """
     Finds all of the feedstocks a user maintains that can be updated without
     a dependency conflict with other feedstocks the user maintains,
     creates forks, ticks versions and hashes, and rerenders,
     then submits a pull
-    :param str gh_user: github username
-    :param str gh_password: github password or oauth token
+    :param str gh_password: GitHub password or OAuth token
+    :param str gh_user: GitHub username (can be omitted with OAuth)
     """
-    g = Github(gh_user, gh_password)
+
+    if gh_user is None:
+        g = Gitgub(gh_password)
+    else:
+        g = Github(gh_user, gh_password)
     user = g.get_user()
 
     feedstocks = user_feedstocks(user)
-    statuses = [feedstock_status(user, feedstock, gh_password)
+    statuses = [feedstock_status(feedstock)
                 for feedstock in tqdm(feedstocks)]
 
     can_be_updated = []
@@ -289,9 +293,10 @@ def tick_feedstocks(gh_user, gh_password):
 
         # patch fork
         r = requests.put(
-            'https://api.github.com/{}/contents/recipe/meta.yaml'.format(fork.full_name),
-                         json=patch[1],
-                         auth=(user.login, gh_password))
+            'https://api.github.com/{}/contents/recipe/meta.yaml'.format(
+                fork.full_name),
+            json=patch[1],
+            auth=(user.login, gh_password))
 
         if not r.ok:
             # something broke.
@@ -313,7 +318,6 @@ def tick_feedstocks(gh_user, gh_password):
     for tpl in cannot_be_updated:
         print('  {}: {}'.format(tpl[0], tpl[1]))
 
-
     # Log updates that failed
     print('Failed to update:')
     for update in failed_updates:
@@ -322,14 +326,21 @@ def tick_feedstocks(gh_user, gh_password):
 
 def main():
     """
-    Get user input, initiate cf_maintainer_bot
+    Get user ID and authorization from input, then tick their feedstocks
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument('gh_user', help='GitHub username')
-    parser.add_argument('gh_password', help='GitHub password or auth token')
+    parser.add_argument('password_or_oauth',
+                        dest='password',
+                        help='GitHub password or oauth token')
+    parser.add_argument('--user',
+                        dest='user',
+                        help='GitHub username')
     args = parser.parse_args()
 
-    tick_feedstocks(args['gh_user'], args['gh_password'])
+    if 'user' in args:
+        tick_feedstocks(args['password'], args['user'])
+    else:
+        tick_feedstocks(args['password'])
 
 
 if __name__ == "__main__":

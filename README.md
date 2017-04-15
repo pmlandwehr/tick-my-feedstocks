@@ -19,3 +19,11 @@ On execution, the program will:
 
 
 Recipes versioned in this manner **SHOULD BE DOUBLE-CHECKED**. Because we do limited testing of conda-forge packages, it's quite possible that after a version requirement has been changed upstream the CIs won't throw an error. So, before merging any bot-submitted pulls, please make sure that all of the requirements are still correct.
+
+
+### OAuth Tokens
+
+If you want to use an OAuthToken instead of you github password, you should make sure that the token has these permissions:
+* `public_repo`
+* `read:org`
+* `delete_repo` (This is unnecessary if you have no out-of-date forks of your feedstocks)
