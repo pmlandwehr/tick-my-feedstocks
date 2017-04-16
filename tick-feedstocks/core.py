@@ -246,10 +246,12 @@ def tick_feedstocks(gh_password, gh_user=None):
     """
 
     if gh_user is None:
-        g = Gitgub(gh_password)
+        g = Github(gh_password)
+        user = g.get_user()
+        gh_user = user.login
     else:
         g = Github(gh_user, gh_password)
-    user = g.get_user()
+        user = g.get_user()
 
     feedstocks = user_feedstocks(user)
     statuses = [feedstock_status(feedstock)
@@ -309,7 +311,7 @@ def tick_feedstocks(gh_password, gh_user=None):
     subprocess.run(['conda', 'update', '-y', 'conda-smithy'])
     for fork in tqdm(successful_forks):
         subprocess.run(["./renderer.sh",
-                        user.login,
+                        gh_user,
                         gh_password,
                         fork.full_name[12:]])
 
