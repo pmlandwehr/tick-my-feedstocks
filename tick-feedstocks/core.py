@@ -119,7 +119,7 @@ def basic_patch(text, yaml_strs, pypi_version, blob_sha):
         return False, 'Couldn\'t find current version or SHA in meta.yaml'
 
     new_text = text.replace(yaml_strs['version'], pypi_version).\
-        replace(yaml_strs['source']['sha256'], pypi_sha)
+        replace(yaml_strs['sha256'], pypi_sha)
 
     commit_dict = {
         'message': 'Tick version to {}'.format(pypi_version),
