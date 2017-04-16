@@ -2,6 +2,7 @@ import argparse
 from base64 import b64encode
 from base64 import b64decode
 import codecs
+from collections import defaultdict
 from collections import namedtuple
 from bs4 import BeautifulSoup
 from github import Github
@@ -276,7 +277,7 @@ def tick_feedstocks(gh_password, gh_user=None):
 
     successful_forks = []
     successful_updates = []
-    failed_updates = []
+    error_dict = defaultdict(list)
     for update in tqdm(indep_updates):
         # generate basic patch
         patch = basic_patch(update[1].data.text,
@@ -286,7 +287,7 @@ def tick_feedstocks(gh_password, gh_user=None):
 
         if patch[0] is False:
             # couldn't apply patch
-            failed_updates.append(update)
+            error_dict["Couldn't Patch"].append(update)
             continue
 
         # make fork
@@ -294,7 +295,7 @@ def tick_feedstocks(gh_password, gh_user=None):
 
         if fork is None:
             # forking failed
-            failed_updates.append(update)
+            error_dict["Couldn't Fork"].append(update)
             continue
 
         # patch fork
@@ -306,7 +307,7 @@ def tick_feedstocks(gh_password, gh_user=None):
 
         if not r.ok:
             # something broke.
-            failed_updates.append(update)
+            error_dict["Couldn't Apply Patch"].append(update)
             continue
 
         successful_updates.append(update)
@@ -325,9 +326,10 @@ def tick_feedstocks(gh_password, gh_user=None):
         print('  {}: {}'.format(tpl[0], tpl[1]))
 
     # Log updates that failed
-    print('Failed to update:')
-    for update in failed_updates:
-        print(' {}'.format(update[0].full_name))
+    for error_msg in error_dict:
+        print('{}:'.format(error_msg))
+        for update in error_dict[error_msg]:
+            print('  {}'.format(update[0].full_name))
 
 
 def main():
