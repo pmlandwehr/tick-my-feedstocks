@@ -11,7 +11,7 @@ def main():
 
     setup(
         name='tick-feedstocks',
-        version='0.0.1',
+        version='0.0.0',
         description='Automatically update conda-forge feedstocks by '
                     'ticking versions, updating hashes, and creating pull requests.',
         long_descripton=long_description,
