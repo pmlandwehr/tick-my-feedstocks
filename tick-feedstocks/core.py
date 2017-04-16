@@ -154,7 +154,7 @@ def feedstock_status(feedstock):
     :return: `tpl(bool,bool,obj)` -- bools indicating success and either None or a tuple of data
     """
 
-    meta_yaml = feedstock.get_contents('recpe/meta.yaml')
+    meta_yaml = feedstock.get_contents('recipe/meta.yaml')
 
     yaml_dict = parsed_meta_yaml(meta_yaml.decoded_content)
     if yaml_dict is None:
