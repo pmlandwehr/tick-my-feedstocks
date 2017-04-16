@@ -168,7 +168,7 @@ def feedstock_status(feedstock):
                  ('source_fn', ('source', 'fn')),
                  ('sha256', ('source', 'sha256'))]:
         try:
-            yaml_strs[x] = str(yaml_dict[y[0], y[1]]).strip()
+            yaml_strs[x] = str(yaml_dict[y[0]][y[1]]).strip()
         except KeyError:
             return fs_tuple(False, False, 'Missing meta.yaml key: [{}][{}]'.format(y[0], y[1]))
 
