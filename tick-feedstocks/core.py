@@ -1,5 +1,7 @@
 import argparse
 from base64 import b64encode
+from base64 import b64decode
+from codecs import decode
 from collections import namedtuple
 from bs4 import BeautifulSoup
 from github import Github
@@ -156,7 +158,8 @@ def feedstock_status(feedstock):
 
     meta_yaml = feedstock.get_contents('recipe/meta.yaml')
 
-    yaml_dict = parsed_meta_yaml(meta_yaml.decoded_content)
+    # yaml_dict = parsed_meta_yaml(meta_yaml.decoded_content)
+    yaml_dict = parsed_meta_yaml(decode(b64decode(meta_yaml.content)))
     if yaml_dict is None:
         return fs_tuple(False, False, 'Couldn\'t parse meta.yaml')
 
