@@ -221,12 +221,15 @@ def even_feedstock_fork(user, feedstock):
     comparison = fork.compare(base='{}:master'.format(user.login),
                               head='conda-forge:master')
 
-    if comparison.ahead_by > 0:
-        # fork is *ahead* of master
+    if comparison.behind_by > 0:
+        # head is *behind* the base
+        # conda-forge is behind the fork
         # leave everything alone - don't want to mess.
         return None
-    elif comparison.behind_by > 0:
-        # fork is *behind* master
+    
+    elif comparison.ahead_by > 0:
+        # head is *ahead* of base
+        # conda-forge is ahead of the fork
         # delete fork and clone from scratch
         try:
             fork.delete()
