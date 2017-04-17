@@ -16,6 +16,10 @@ import subprocess
 from tqdm import tqdm
 import yaml
 
+# TODO when pygithub gets updated, add .create_pull() code
+# TODO Add --no-rerender option (stub until .create_pull())
+# TODO Add support for skipping repos (e.g. fake-factory)
+
 
 pypi_pkg_uri = 'https://pypi.python.org/pypi/{}/json'.format
 
