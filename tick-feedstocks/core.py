@@ -76,7 +76,8 @@ def parsed_meta_yaml(text):
     :return: `dict|None` -- parsed YAML dict if successful, None if not
     """
     try:
-        yaml_dict = yaml.load(Template(text).render())
+        yaml_dict = yaml.load(Template(text).render(),
+                              Loader=yaml.BaseLoader)
     except UndefinedError:
         # assume we hit a RECIPE_DIR reference in the vars and can't parse it.
         # just erase for now
@@ -170,7 +171,7 @@ def feedstock_status(feedstock):
                  ('source_fn', ('source', 'fn')),
                  ('sha256', ('source', 'sha256'))]:
         try:
-            yaml_strs[x] = str(yaml_dict[y[0]][y[1]]).strip()
+            yaml_strs[x] = yaml_dict[y[0]][y[1]]
         except KeyError:
             return fs_tuple(False, False, 'Missing meta.yaml key: [{}][{}]'.format(y[0], y[1]))
 
