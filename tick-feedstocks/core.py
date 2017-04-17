@@ -83,10 +83,11 @@ def parsed_meta_yaml(text):
         # just erase for now
         try:
             yaml_dict = yaml.load(
-                Template(
-                    re.sub('{{ (environ\[")?RECIPE_DIR("])? }}/', '',
-                           text)
-                ).render())
+                Template(re.sub('{{ (environ\[")?RECIPE_DIR("])? }}/',
+                                '',
+                                text)
+                         ).render(),
+                Loader=yaml.BaseLoader)
         except:
             return None
     except:
