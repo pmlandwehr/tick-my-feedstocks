@@ -304,7 +304,7 @@ def tick_feedstocks(gh_password, gh_user=None):
 
         # patch fork
         r = requests.put(
-            'https://api.github.com/{}/contents/recipe/meta.yaml'.format(
+            'https://api.github.com/repos/{}/contents/recipe/meta.yaml'.format(
                 fork.full_name),
             json=patch[1],
             auth=(user.login, gh_password))
