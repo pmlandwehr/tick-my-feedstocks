@@ -322,7 +322,7 @@ def tick_feedstocks(gh_password, gh_user=None):
         subprocess.run(["./renderer.sh",
                         gh_user,
                         gh_password,
-                        fork.full_name[12:]])
+                        fork.full_name.split('/')[1]])
 
     # Log updates that couldn't be performed
     print('Couldn\'t update:')
