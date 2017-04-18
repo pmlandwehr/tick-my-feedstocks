@@ -5,7 +5,7 @@ This is a program designed to help keep any [conda-forge](https://conda-forge.gi
 To use it:
 
 ```bash
-python tick-feedstocks/core.py <user> <password_or_oauth>
+python tick-feedstocks/core.py <password_or_oauth> [--user <user>]
 ```
 
 On execution, the program will:
