@@ -1,1 +1,1 @@
-from .core import tick_feedstocks
+from .tick_my_feedstocks import tick_feedstocks
