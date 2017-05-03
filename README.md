@@ -1,29 +1,35 @@
-## tick-feedstocks
-
+# tick-my-feedstocks
 This is a program designed to help keep any [conda-forge](https://conda-forge.github.io/) feedstocks that you administer up to do date. It's *not* a polished, up-to-date package. It's a supplement to help folks eyeball their packages more easily, not a replacement for checking all of your packages.
 
-To use it:
-
+## Usage
 ```bash
-python tick-feedstocks/core.py <password_or_oauth> [--user <user>]
+python tick_my_feedstocks.py [--password <github_password_or_oauth>] [--user <github_username>] [--no-regenerate --no-rerender --dry-run]
 ```
 
-On execution, the program will:
-* Identify all of the feedstocks that the user maintains.
-* Identify those that are behind their corresponding [pypi](https://pypi.python.org/pypi) versions.
-* Filter this list for the subset that don't depend on any other out-of-date feedstocks.
-* For each feedstock *f* in the remaining list:
-    * Attempt to trivially patch *f* by updating its version number and hash checksum.
-    * Rerender *f* using the latest version of [conda-smithy](https://github.com/conda-forge/conda-smithy) and commit the change.
-    * Submit a pull request for *f* to the origin on conda-forge.
+On execution, the script will:
+1. Identify all of the feedstocks maintained by the user
+2. Attempt to determine *F*, the subset of feedstocks that need updating
+3. Attempt to determine *F<sub>i</sub>*, the subset of *F* that has no dependencies
+  on other members of *F*.
+4. Attempts to patch each feedstock in *F<sub>i</sub>* by:
+    1. Creating a new commit containing:
+        1. A modified `meta.yaml` with the new version number
+        2. A modified `meta.yaml` with the `sha256`` checksum for the new version.
+        3. A modified `meta.yaml` with the build number reset to `0`.
+    2. Creating a fork of the feedstock for the authorized user.
+    3. Applying the new commit to the forked feedstock.
+5. Regenerating all of the forked feedstocks using the installed version of [conda-smithy](https://github.com/conda-forge/conda-smithy).
+6. Submitting pull requests for all of the successfully forked feedstocks.
 
+## Caveats
+### Updates are sourced from PyPI.
+All version information comes from PyPI right now. If the feedstock isn't based in PyPI, this can't help you.
 
-Recipes versioned in this manner **SHOULD BE DOUBLE-CHECKED**. Because we do limited testing of conda-forge packages, it's quite possible that after a version requirement has been changed upstream the CIs won't throw an error. So, before merging any bot-submitted pulls, please make sure that all of the requirements are still correct.
+### Double-check the dependencies!
+`tick-my-feedstocks` doesn't do anything to verify whether or not runtime dependencies have changed. Further, since conda-forge tests are very lightweights, you should make sure that run dependencies haven't changed.
 
-
-### OAuth Tokens
-
-If you want to use an OAuthToken instead of you github password, you should make sure that the token has these permissions:
+## OAuth Token permissions
+If you want to use an OAuthToken instead of your GitHub password, you should make sure that the token has these permissions:
 * `public_repo`
 * `read:org`
 * `delete_repo` (This is unnecessary if you have no out-of-date forks of your feedstocks)
