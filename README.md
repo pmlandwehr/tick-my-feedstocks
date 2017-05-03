@@ -5,8 +5,20 @@ This is a program designed to help keep any [conda-forge](https://conda-forge.gi
 ```bash
 python tick_my_feedstocks.py [--password <github_password_or_oauth>] [--user <github_username>] [--no-regenerate --no-rerender --dry-run]
 ```
+or
+```bash
+conda execute tick_my_feedstocks.py [--password <github_password_or_oauth>] [--user <github_username>] [--no-regenerate --no-rerender --dry-run]
+```
 
-On execution, the script will:
+If you use [`conda execute`](https://github.com/pelson/conda-execute) to run
+the script,`conda` will:
+* Use the comment block at the start of the script to define a list of
+dependencies
+* Set up a temporary environment based on those dependencies
+* Run the script in the environment
+* Destroy the environment
+
+## What the script does:
 1. Identify all of the feedstocks maintained by the user
 2. Attempt to determine *F*, the subset of feedstocks that need updating
 3. Attempt to determine *F<sub>i</sub>*, the subset of *F* that has no dependencies
