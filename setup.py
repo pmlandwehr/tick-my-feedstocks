@@ -18,7 +18,7 @@ def main():
         author='Peter M. Landwehr',
         author_email='pmlandwehr@gmail.com',
         url='https://github.com/pmlandwehr/cf_maintainer_bot',
-        license='BSD',
+        license='BSD 3-Clause',
         classifiers=[
             'Development Status :: 3 - Alpha',
             'Intended Audience :: Developers',
@@ -31,7 +31,7 @@ def main():
         install_requires=requirements,
         entry_points={
             'console_scripts': [
-                'tick-feedstocks=tick-feedstocks.core:main'
+                'tick-my-feedstocks=tick-my-feedstocks.core:main'
             ],
         },
     )
