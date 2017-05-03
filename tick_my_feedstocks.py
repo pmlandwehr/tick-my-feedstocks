@@ -8,7 +8,6 @@
 #  - beautifulsoup4
 #  - gitpython
 #  - jinja2
-#  - lxml
 #  - pygithub >=1.29
 #  - pyyaml
 #  - requests
@@ -68,6 +67,9 @@ IMPORTANT NOTES:
 # TODO maintainer_can_modify flag when submitting pull
 #   Note that this isn't supported by pygithub yet, so would require
 #   switching back to requests
+# TODO Solve beauitful soup warning issue.
+# TODO Suppress regeneration text output
+# TODO improve the TQDM progress bar during regeneration.
 
 import argparse
 from base64 import b64encode
@@ -314,7 +316,7 @@ def pypi_org_sha(package_name, version):
         package_name,
         version))
 
-    bs = BeautifulSoup(r.text, 'lxml')
+    bs = BeautifulSoup(r.text)
     for bundle_type in source_bundle_types:
         try:
             url_pattern = re.compile(
