@@ -12,8 +12,7 @@ def main():
     setup(
         name='tick-feedstocks',
         version='0.0.0',
-        description='Automatically update conda-forge feedstocks by '
-                    'ticking versions, updating hashes, and creating pull requests.',
+        description='Automatically update conda-forge feedstocks',
         long_descripton=long_description,
         author='Peter M. Landwehr',
         author_email='pmlandwehr@gmail.com',
@@ -31,7 +30,7 @@ def main():
         install_requires=requirements,
         entry_points={
             'console_scripts': [
-                'tick-my-feedstocks=tick-my-feedstocks.core:main'
+                'tick-my-feedstocks=tick_my_feedstocks:main'
             ],
         },
     )

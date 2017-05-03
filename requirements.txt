@@ -1,4 +1,7 @@
+python ==3.5
 beautifulsoup4
+conda_smithy
+gitpython
 jinja2
 pyyaml
 pygithub
