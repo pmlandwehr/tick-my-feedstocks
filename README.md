@@ -26,7 +26,7 @@ dependencies
 4. Attempts to patch each feedstock in *F<sub>i</sub>* by:
     1. Creating a new commit containing:
         1. A modified `meta.yaml` with the new version number
-        2. A modified `meta.yaml` with the `sha256`` checksum for the new version.
+        2. A modified `meta.yaml` with the `sha256` checksum for the new version.
         3. A modified `meta.yaml` with the build number reset to `0`.
     2. Creating a fork of the feedstock for the authorized user.
     3. Applying the new commit to the forked feedstock.
