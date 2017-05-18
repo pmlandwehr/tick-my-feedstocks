@@ -85,7 +85,6 @@ IMPORTANT NOTES:
 
 import argparse
 from base64 import b64encode
-from bs4 import BeautifulSoup
 from collections import defaultdict
 from collections import namedtuple
 import conda_smithy
@@ -325,6 +324,11 @@ def pypi_org_sha(package_name, version):
     :param str version: version for which to get sha
     :return: `str,str|None,None` -- bundle type,SHA for source, None,None if can't be found
     """
+    import warnings
+    from bs4 import BeautifulSoup
+    warnings.filterwarnings("ignore", category=UserWarning, module='bs4')
+
+
     r = requests.get('https://pypi.org/project/{}/{}/#files'.format(
         package_name,
         version))
