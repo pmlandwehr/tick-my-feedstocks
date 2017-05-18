@@ -641,6 +641,7 @@ def tick_feedstocks(gh_password=None,
                                   head='{}:master'.format(gh_user),
                                   base='master')
         except GithubException:
+            error_dict["Couldn't create pull"].append(update.fs.name)
             continue
 
         pull_count += 1
