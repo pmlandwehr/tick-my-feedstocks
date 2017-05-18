@@ -23,7 +23,18 @@ python tick_my_feedstocks.py
 [--password <github_password_or_oauth>]
 [--user <github_username>]
 [--no-regenerate --no-rerender --dry-run]
-[--limit <max feedstocks>]
+[--limit-feedstocks <max feedstocks>]
+[--limit-outdated <max outdated feedstocks>]
+
+or
+
+conda execute tick_my_feedstocks.py
+[--password <github_password_or_oauth>]
+[--user <github_username>]
+[--no-regenerate --no-rerender --dry-run]
+[--limit-feedstocks <max feedstocks>]
+[--limit-outdated <max outdated feedstocks>]
+
 
 NOTE that your oauth token should have these abilities:
 * public_repo
@@ -359,13 +370,18 @@ def pypi_version_str(package_name):
     return r.json()['info']['version'].strip()
 
 
-def user_feedstocks(user):
+def user_feedstocks(user, limit=-1):
     """
     :param github.AuthenticatedUser.AutheticatedUser user:
+    :param  int limit: If greater than -1, max number of feedstocks to return
     :return: `list` -- list of conda-forge feedstocks the user maintains
     """
     feedstocks = []
     for team in tqdm(user.get_teams(), desc='Finding feedstock teams...'):
+
+        # Check if we've hit the feedstock limit
+        if limit > -1 and len(feedstocks) >= limit:
+            break
 
         # Each conda-forge team manages one feedstock
         # If a team has more than one repo, skip it.
@@ -489,7 +505,8 @@ def tick_feedstocks(gh_password=None,
                     gh_user=None,
                     no_regenerate=False,
                     dry_run=False,
-                    limit=0):
+                    limit_feedstocks=-1,
+                    limit_outdated=-1):
     """
     Finds all of the feedstocks a user maintains that can be updated without
     a dependency conflict with other feedstocks the user maintains,
@@ -499,7 +516,8 @@ def tick_feedstocks(gh_password=None,
     :param str|None gh_user: GitHub username (can be omitted with OAuth)
     :param bool no_regenerate: If True, don't regenerate feedstocks before submitting pull requests
     :param bool dry_run: If True, do not apply generate patches, fork feedstocks, or regenerate
-    :param int limit: If greater than 0, maximum number of feedstocks to patch
+    :param int limit_feedstocks: If greater than -1, maximum number of feedstocks to retrieve and check for updateds
+    :param int limit_outdated: If greater than -1, maximum number of outdated feedstocks to check for patching
     """
     if gh_password is None:
         gh_password = os.getenv('GH_TOKEN')
@@ -515,7 +533,7 @@ def tick_feedstocks(gh_password=None,
         g = Github(gh_user, gh_password)
         user = g.get_user()
 
-    feedstocks = user_feedstocks(user)
+    feedstocks = user_feedstocks(user, limit_feedstocks)
 
     can_be_updated = list()
     status_error_dict = defaultdict(list)
@@ -526,7 +544,7 @@ def tick_feedstocks(gh_password=None,
         elif not status.success:
             status_error_dict[status.data].append(feedstock.name)
 
-        if limit > 0 and len(can_be_updated) >= limit:
+        if limit_outdated > -1 and len(can_be_updated) >= limit_outdated:
             break
 
     package_names = set([x.fs.name[:-10] for x in can_be_updated])
@@ -666,18 +684,24 @@ def main():
                         dest='dry_run',
                         help='If present, skip applying patches, forking, '
                         'and regenerating feedstocks')
-    parser.add_argument('--limit',
+    parser.add_argument('--limit-feedstocks',
                         type=int,
-                        default=0,
-                        dest='limit',
-                        help='Maximum number of feedstocks to update')
+                        default=-1,
+                        dest='limit_feedstocks',
+                        help='Maximum number of feedstocks to retrieve')
+    parser.add_argument('--limit-outdated',
+                        type=int,
+                        default=-1,
+                        dest='limit_outdated',
+                        help='Maximum number of outdated feedstocks to try and patch')
     args = parser.parse_args()
 
     tick_feedstocks(args.gh_password,
                     args.gh_user,
                     args.no_regenerate or args.no_rerender,
                     args.dry_run,
-                    args.limit)
+                    args.limit_feedstocks,
+                    args.limit_outdated)
 
 
 if __name__ == "__main__":
