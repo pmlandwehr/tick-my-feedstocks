@@ -492,8 +492,9 @@ def regenerate_fork(fork):
     # subprocess.run(["./renderer.sh", gh_user, gh_password, fork.name])
 
     working_dir = tempfile.TemporaryDirectory()
-    r = Repo.clone_from(fork.clone_url, working_dir.name)
-    conda_smithy.configure_feedstock.main(working_dir.name)
+    local_repo_dir = os.path.join(working_dir.name, fork.name)
+    r = Repo.clone_from(fork.clone_url, local_repo_dir)
+    conda_smithy.configure_feedstock.main(local_repo_dir)
 
     if not r.is_dirty():
         # No changes made during regeneration.
