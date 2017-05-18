@@ -23,6 +23,7 @@ python tick_my_feedstocks.py
 [--password <github_password_or_oauth>]
 [--user <github_username>]
 [--no-regenerate --no-rerender --dry-run]
+[--limit <max feedstocks>]
 
 NOTE that your oauth token should have these abilities:
 * public_repo
@@ -487,7 +488,8 @@ def regenerate_fork(fork):
 def tick_feedstocks(gh_password=None,
                     gh_user=None,
                     no_regenerate=False,
-                    dry_run=False):
+                    dry_run=False,
+                    limit=0):
     """
     Finds all of the feedstocks a user maintains that can be updated without
     a dependency conflict with other feedstocks the user maintains,
@@ -497,6 +499,7 @@ def tick_feedstocks(gh_password=None,
     :param str|None gh_user: GitHub username (can be omitted with OAuth)
     :param bool no_regenerate: If True, don't regenerate feedstocks before submitting pull requests
     :param bool dry_run: If True, do not apply generate patches, fork feedstocks, or regenerate
+    :param int limit: If greater than 0, maximum number of feedstocks to patch
     """
     if gh_password is None:
         gh_password = os.getenv('GH_TOKEN')
@@ -522,6 +525,9 @@ def tick_feedstocks(gh_password=None,
             can_be_updated.append(fs_status(feedstock, status.data))
         elif not status.success:
             status_error_dict[status.data].append(feedstock.name)
+
+        if limit > 0 and len(can_be_updated) >= limit:
+            break
 
     package_names = set([x.fs.name[:-10] for x in can_be_updated])
     indep_updates = [x for x in can_be_updated
@@ -660,12 +666,18 @@ def main():
                         dest='dry_run',
                         help='If present, skip applying patches, forking, '
                         'and regenerating feedstocks')
+    parser.add_argument('--limit',
+                        type=int,
+                        default=0,
+                        dest='limit',
+                        help='Maximum number of feedstocks to update')
     args = parser.parse_args()
 
     tick_feedstocks(args.gh_password,
                     args.gh_user,
                     args.no_regenerate or args.no_rerender,
-                    args.dry_run)
+                    args.dry_run,
+                    args.limit)
 
 
 if __name__ == "__main__":
