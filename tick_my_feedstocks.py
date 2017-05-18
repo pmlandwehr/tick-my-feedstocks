@@ -94,6 +94,7 @@ from git import Actor
 from git import Repo
 from github import Github
 from github import GithubException
+from github import UnknownObjectException
 from jinja2 import Template
 from jinja2 import UndefinedError
 import os
@@ -445,7 +446,12 @@ def even_feedstock_fork(user, feedstock):
     :param github.Repository.Repository feedstock: conda-forge feedstock
     :return: `None|github.Repository.Repository` -- None if no fork, else the repository
     """
-    fork = get_user_fork(user, feedstock)
+    try:
+        fork = user.create_fork(feedstock)
+    except UnknownObjectException:
+        raise UnknownObjectException('Issue with GitHub API when forking')
+    except GithubException:
+        raise GithubException('Issue with GitHub API when forking')
 
     comparison = fork.compare(base='{}:master'.format(user.login),
                               head='conda-forge:master')
@@ -465,9 +471,14 @@ def even_feedstock_fork(user, feedstock):
         except GithubException:
             # couldn't delete feedstock
             # give up, don't want a mess.
-            return None
+            raise GithubException("Couldn't delete outdated fork")
 
-        fork = user.create_fork(feedstock)
+        try:
+            fork = user.create_fork(feedstock)
+        except UnknownObjectException:
+            raise UnknownObjectException('Issue with GitHub API when forking')
+        except GithubException:
+            raise GithubException('Issue with GitHub API when forking')
 
     return fork
 
@@ -587,7 +598,12 @@ def tick_feedstocks(gh_password=None,
             continue
 
         # make fork
-        fork = even_feedstock_fork(user, update.fs)
+        try:
+            fork = even_feedstock_fork(user, update.fs)
+        except (UnknownObjectException, GithubException) as e:
+            # TODO this should be a better error catch
+            fork = None
+
         if fork is None:
             error_dict["Couldn't fork"].append(update.fs.name)
             continue
