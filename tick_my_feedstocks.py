@@ -424,20 +424,6 @@ def feedstock_status(feedstock):
                                     fs_contents.sha))
 
 
-def get_user_fork(user, feedstock):
-    """
-    Return a user's fork of a feedstock if one exists, else create a new one.
-    :param github.AuthenticatedUser.AuthenticatedUser user:
-    :param github.Repository.Repository feedstock: conda-forge feedstock
-    :return: `github.Repository.Repository` -- fork of the feedstock beloging to user
-    """
-    for fork in feedstock.get_forks():
-        if fork.owner.login == user.login:
-            return fork
-
-    return user.create_fork(feedstock)
-
-
 def even_feedstock_fork(user, feedstock):
     """
     Return a fork that's even with the latest version of the feedstock
