@@ -60,11 +60,6 @@ IMPORTANT NOTES:
   tests may still pass successfully.
 """
 # TODO pass token/user to pygithub for push. (Currently uses system config.)
-#  This is likely also why regeneration uses temporary CI dirs and not
-#  defined ones (e.g
-#  https://circleci.com/gh/conda-forge/tmp0bnegy33-feedstock.svg instead of
-#  https://circleci.com/gh/conda-forge/debtcollector-feedstock.svg)
-#  (Could also be an issue with conda_forge.configure_feedstock)
 # TODO Modify --dry-run flag to list which repos need forks.
 # TODO Modify --dry-run flag to list which forks are dirty.
 # TODO Modify --dry-run to also cover regeneration
@@ -79,9 +74,8 @@ IMPORTANT NOTES:
 # TODO maintainer_can_modify flag when submitting pull
 #   Note that this isn't supported by pygithub yet, so would require
 #   switching back to requests
-# TODO Solve beauitful soup warning issue.
 # TODO Suppress regeneration text output
-# TODO improve the TQDM progress bar during regeneration.
+# TODO improve the tqdm progress bar during regeneration.
 
 import argparse
 from base64 import b64encode
