@@ -345,7 +345,6 @@ def pypi_org_sha(package_name, version):
     from bs4 import BeautifulSoup
     warnings.filterwarnings("ignore", category=UserWarning, module='bs4')
 
-
     r = requests.get('https://pypi.org/project/{}/{}/#files'.format(
         package_name,
         version))
