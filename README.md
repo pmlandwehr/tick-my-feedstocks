@@ -1,28 +1,41 @@
 # tick-my-feedstocks
-This is a program designed to help keep any [conda-forge](https://conda-forge.github.io/) feedstocks that you administer up to do date. It's *not* a polished, up-to-date package. It's a supplement to help folks eyeball their packages more easily, not a replacement for checking all of your packages.
+This is a program designed to help keep any [conda-forge](https://conda-forge.github.io/) feedstocks that you administer up to do date. It's _not_ a polished, up-to-date package. It's a supplement to help folks eyeball their packages more easily, not a replacement for checking all of your packages.
 
 ## Usage
+
 ```bash
-python tick_my_feedstocks.py [--password <github_password_or_oauth>] [--user <github_username>] [--no-regenerate --no-rerender --dry-run]
-```
-or
-```bash
-conda execute tick_my_feedstocks.py [--password <github_password_or_oauth>] [--user <github_username>] [--no-regenerate --no-rerender --dry-run]
+python tick_my_feedstocks.py [-h]
+                             [--password <GH_PASSWORD>] [--user <GH_USER>]
+                             [--no-regenerate] [--no-rerender] [--dry-run]
+                             [--limit-feedstocks <LIMIT_FEEDSTOCKS>]
+                             [--limit-outdated <LIMIT_OUTDATED>]
+                             [--skipfile <SKIPFILE>]
+                             [--skip-feedstocks <SKIP_FEEDSTOCKS_1> [<SKIP_FEEDSTOCKS_2>...]]
 ```
 
-If you use [`conda execute`](https://github.com/pelson/conda-execute) to run
-the script,`conda` will:
-* Use the comment block at the start of the script to define a list of
-dependencies
-* Set up a temporary environment based on those dependencies
-* Run the script in the environment
-* Destroy the environment
+or
+
+```bash
+conda execute tick_my_feedstocks.py [-h]
+                                    [--password <GH_PASSWORD>] [--user <GH_USER>]
+                                    [--no-regenerate] [--no-rerender] [--dry-run]
+                                    [--limit-feedstocks <LIMIT_FEEDSTOCKS>]
+                                    [--limit-outdated <LIMIT_OUTDATED>]
+                                    [--skipfile <SKIPFILE>]
+                                    [--skip-feedstocks <SKIP_FEEDSTOCKS_1> [<SKIP_FEEDSTOCKS_2>...]]
+```
+
+If you use [`conda execute`](https://github.com/pelson/conda-execute) to run the script,`conda` will:
+
+- Use the comment block at the start of the script to define a list of dependencies
+- Set up a temporary environment based on those dependencies
+- Run the script in the environment
+- Destroy the environment
 
 ## What the script does:
 1. Identify all of the feedstocks maintained by the user
 2. Attempt to determine *F*, the subset of feedstocks that need updating
-3. Attempt to determine *F<sub>i</sub>*, the subset of *F* that has no dependencies
-  on other members of *F*.
+3. Attempt to determine *F<sub>i</sub>*, the subset of _F_ that has no dependencies on other members of _F_.
 4. Attempts to patch each feedstock in *F<sub>i</sub>* by:
     1. Creating a new commit containing:
         1. A modified `meta.yaml` with the new version number
@@ -30,6 +43,7 @@ dependencies
         3. A modified `meta.yaml` with the build number reset to `0`.
     2. Creating a fork of the feedstock for the authorized user.
     3. Applying the new commit to the forked feedstock.
+
 5. Regenerating all of the forked feedstocks using the installed version of [conda-smithy](https://github.com/conda-forge/conda-smithy).
 6. Submitting pull requests for all of the successfully forked feedstocks.
 
@@ -42,6 +56,7 @@ All version information comes from PyPI right now. If the feedstock isn't based 
 
 ## OAuth Token permissions
 If you want to use an OAuthToken instead of your GitHub password, you should make sure that the token has these permissions:
+
 * `public_repo`
 * `read:org`
 * `delete_repo` (This is unnecessary if you have no out-of-date forks of your feedstocks)
