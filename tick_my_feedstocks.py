@@ -19,21 +19,23 @@
 
 """
 Usage:
-python tick_my_feedstocks.py
-[--password <github_password_or_oauth>]
-[--user <github_username>]
-[--no-regenerate --no-rerender --dry-run]
-[--limit-feedstocks <max feedstocks>]
-[--limit-outdated <max outdated feedstocks>]
+python tick_my_feedstocks.py [-h]
+[--password GH_PASSWORD] [--user GH_USER]
+[--no-regenerate] [--no-rerender] [--dry-run]
+[--limit-feedstocks LIMIT_FEEDSTOCKS]
+[--limit-outdated LIMIT_OUTDATED]
+[--skipfile SKIPFILE]
+[--skip-feedstocks [SKIP_FEEDSTOCKS [SKIP_FEEDSTOCKS ...]]]
 
 or
 
-conda execute tick_my_feedstocks.py
-[--password <github_password_or_oauth>]
-[--user <github_username>]
-[--no-regenerate --no-rerender --dry-run]
-[--limit-feedstocks <max feedstocks>]
-[--limit-outdated <max outdated feedstocks>]
+conda execute tick_my_feedstocks.py [-h]
+[--password GH_PASSWORD] [--user GH_USER]
+[--no-regenerate] [--no-rerender] [--dry-run]
+[--limit-feedstocks LIMIT_FEEDSTOCKS]
+[--limit-outdated LIMIT_OUTDATED]
+[--skipfile SKIPFILE]
+[--skip-feedstocks [SKIP_FEEDSTOCKS [SKIP_FEEDSTOCKS ...]]]
 
 
 NOTE that your oauth token should have these abilities:
