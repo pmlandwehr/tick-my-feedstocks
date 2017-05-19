@@ -130,6 +130,29 @@ fs_status = namedtuple('fs_status', ['fs', 'sd'])
 source_bundle_types = ["tar.gz", "tar.bz2", "zip", "bz2"]
 
 
+def parse_skipfile(skipfile_path):
+    """
+    tktk
+    :param str skipfile_path:
+    :return: `set` -- set of feedstock names to skip
+    """
+    from itertools import chain
+
+    if not isinstance(skipfile_path, str) and os.path.exists(skipfile_path):
+        return set()
+
+    try:
+        with open(skipfile_path, 'r') as infile:
+            feedstocks_to_skip = list(chain.from_iterable(x.split('#')[0].
+                                                          strip().
+                                                          split()
+                                                          for x in infile))
+    except:
+        return list()
+
+    return feedstocks_to_skip
+
+
 class Feedstock_Meta_Yaml:
     """
     A parser for and modifier of a feedstock's meta.yaml file.
@@ -369,12 +392,17 @@ def pypi_version_str(package_name):
     return r.json()['info']['version'].strip()
 
 
-def user_feedstocks(user, limit=-1):
+def user_feedstocks(user, limit=-1, skips=None):
     """
     :param github.AuthenticatedUser.AutheticatedUser user:
     :param  int limit: If greater than -1, max number of feedstocks to return
-    :return: `list` -- list of conda-forge feedstocks the user maintains
+    :param list|set skips: an iterable of the names of feedstocks that should be skipped
+    :return: `tpl(int,list)` -- count of skipped feedstocks, list of conda-forge feedstocks the user maintains
     """
+    if skips is None:
+        skips = set()
+
+    skip_count = 0
     feedstocks = []
     for team in tqdm(user.get_teams(), desc='Finding feedstock teams...'):
 
@@ -388,11 +416,17 @@ def user_feedstocks(user, limit=-1):
             continue
 
         repo = list(team.get_repos())[0]
-        if repo.full_name.startswith('conda-forge/') and \
-                repo.full_name.endswith('-feedstock'):
-            feedstocks.append(repo)
+        if not repo.full_name.startswith('conda-forge/') or \
+                not repo.full_name.endswith('-feedstock'):
+            continue
 
-    return feedstocks
+        if repo.name in skips:
+            skip_count += 1
+            continue
+
+        feedstocks.append(repo)
+
+    return skip_count, feedstocks
 
 
 def feedstock_status(feedstock):
@@ -502,7 +536,9 @@ def tick_feedstocks(gh_password=None,
                     no_regenerate=False,
                     dry_run=False,
                     limit_feedstocks=-1,
-                    limit_outdated=-1):
+                    limit_outdated=-1,
+                    skipfile=None,
+                    skip_feedstocks=None):
     """
     Finds all of the feedstocks a user maintains that can be updated without
     a dependency conflict with other feedstocks the user maintains,
@@ -514,6 +550,8 @@ def tick_feedstocks(gh_password=None,
     :param bool dry_run: If True, do not apply generate patches, fork feedstocks, or regenerate
     :param int limit_feedstocks: If greater than -1, maximum number of feedstocks to retrieve and check for updateds
     :param int limit_outdated: If greater than -1, maximum number of outdated feedstocks to check for patching
+    :param str skipfile: path to file listing feedstocks to skip
+    :param list|set skip_feedstocks: list or set of feedstocks to skip
     """
     if gh_password is None:
         gh_password = os.getenv('GH_TOKEN')
@@ -529,7 +567,15 @@ def tick_feedstocks(gh_password=None,
         g = Github(gh_user, gh_password)
         user = g.get_user()
 
-    feedstocks = user_feedstocks(user, limit_feedstocks)
+    if skip_feedstocks is None:
+        skip_feedstocks = list()
+
+    if skipfile is None:
+        skips = set(skip_feedstocks)
+    else:
+        skips = set(skip_feedstocks + parse_skipfile(skipfile))
+
+    skip_count, feedstocks = user_feedstocks(user, limit_feedstocks, skips)
 
     can_be_updated = list()
     status_error_dict = defaultdict(list)
@@ -631,7 +677,8 @@ def tick_feedstocks(gh_password=None,
 
         pull_count += 1
 
-    print('{} total feedstocks checked.'.format(len(feedstocks)))
+    print('{} feedstocks skipped.'.format(skip_count))
+    print('{} feedstocks checked.'.format(len(feedstocks)))
     print('  {} were out-of-date.'.format(len(can_be_updated)))
     print('  {} were independent of other out-of-date feedstocks'.format(
         len(indep_updates)))
@@ -696,6 +743,13 @@ def main():
                         default=-1,
                         dest='limit_outdated',
                         help='Maximum number of outdated feedstocks to try and patch')
+    parser.add_argument('--skipfile',
+                        default=None,
+                        help='File listing feedstocks to skip')
+    parser.add_argument('--skip-feedstocks',
+                        default=None,
+                        dest='skip_feedstocks',
+                        nargs='*')
     args = parser.parse_args()
 
     tick_feedstocks(args.gh_password,
@@ -703,7 +757,9 @@ def main():
                     args.no_regenerate or args.no_rerender,
                     args.dry_run,
                     args.limit_feedstocks,
-                    args.limit_outdated)
+                    args.limit_outdated,
+                    args.skipfile,
+                    args.skip_feedstocks)
 
 
 if __name__ == "__main__":
