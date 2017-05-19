@@ -676,7 +676,7 @@ def main():
                         dest='no_regenerate',
                         help="If present, don't regenerate feedstocks "
                         'after updating')
-    parser.add_argument('--no-rererender',
+    parser.add_argument('--no-rerender',
                         action='store_true',
                         dest='no_rerender',
                         help="If present, don't regenerate feedstocks "
