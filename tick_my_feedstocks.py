@@ -22,6 +22,8 @@ Usage:
 python tick_my_feedstocks.py [-h]
 [--password GH_PASSWORD] [--user GH_USER]
 [--no-regenerate] [--no-rerender] [--dry-run]
+[--targetfile TARGETFILE]
+[--target-feedstocks [TARGET_FEEDSTOCKS [TARGET_FEEDSTOCKS ...]]]
 [--limit-feedstocks LIMIT_FEEDSTOCKS]
 [--limit-outdated LIMIT_OUTDATED]
 [--skipfile SKIPFILE]
@@ -32,6 +34,8 @@ or
 conda execute tick_my_feedstocks.py [-h]
 [--password GH_PASSWORD] [--user GH_USER]
 [--no-regenerate] [--no-rerender] [--dry-run]
+[--targetfile TARGETFILE]
+[--target-feedstocks [TARGET_FEEDSTOCKS [TARGET_FEEDSTOCKS ...]]]
 [--limit-feedstocks LIMIT_FEEDSTOCKS]
 [--limit-outdated LIMIT_OUTDATED]
 [--skipfile SKIPFILE]
@@ -44,14 +48,14 @@ NOTE that your oauth token should have these abilities:
 * delete_repo.
 
 This script:
-1 identifies all of the feedstocks maintained by a user
-2 attempts to determine F, the subset of feedstocks that need updating
-3 attempts to determine F_i, the subset of F that have no dependencies
+1. identifies all of the feedstocks maintained by a user
+2. attempts to determine F, the subset of feedstocks that need updating
+3. attempts to determine F_i, the subset of F that have no dependencies
   on other members of F
-4 attempts to patch each member of F_i with the new version number and hash
-5 attempts to regenerate each member of F_i with the installed version
+4. attempts to patch each member of F_i with the new version number and hash
+5. attempts to regenerate each member of F_i with the installed version
   of conda-smithy
-6 submits a pull request for each member of F_i to the appropriate
+6. submits a pull request for each member of F_i to the appropriate
   conda-forge repoository
 
 IMPORTANT NOTES:
@@ -69,7 +73,8 @@ IMPORTANT NOTES:
 # TODO skip upgrading from a stable release to a dev release (e.g. ghost.py)
 # TODO Test python 2.7 compatability (should work, but untested.)
 # TODO Test python 3.4 compatability (should work, but untested.)
-# TODO Test python 3.6 compatability (should work, but untested.)
+# TODO Test python 3.5 compatability (worked, but un-retested.)
+# TODO Test python 3.6 compatability (worked, but un-retested.)
 # TODO Deeper check of dependency changes in meta.yaml.
 # TODO Check installed conda-smithy against current feedstock conda-smithy.
 # TODO Check if already-forked feedstocks have open pulls.
