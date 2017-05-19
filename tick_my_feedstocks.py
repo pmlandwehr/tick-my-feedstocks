@@ -132,27 +132,29 @@ fs_status = namedtuple('fs_status', ['fs', 'sd'])
 source_bundle_types = ["tar.gz", "tar.bz2", "zip", "bz2"]
 
 
-def parse_skipfile(skipfile_path):
+def parse_feedstock_file(feedstock_fpath):
     """
-    tktk
-    :param str skipfile_path:
-    :return: `set` -- set of feedstock names to skip
+    Takes a file with space-separated feedstocks on each line and comments
+    after hashmarks, and returns a list of feedstocks
+    :param str feedstock_fpath:
+    :return: `list` -- list of feedstocks
     """
     from itertools import chain
 
-    if not isinstance(skipfile_path, str) and os.path.exists(skipfile_path):
-        return set()
+    if not isinstance(feedstock_fpath, str) and \
+            os.path.exists(feedstock_fpath):
+        return list()
 
     try:
-        with open(skipfile_path, 'r') as infile:
-            feedstocks_to_skip = list(chain.from_iterable(x.split('#')[0].
-                                                          strip().
-                                                          split()
-                                                          for x in infile))
+        with open(feedstock_fpath, 'r') as infile:
+            feedstocks = list(
+                chain.from_iterable(x.split('#')[0].strip().split()
+                                    for x in infile)
+            )
     except:
         return list()
 
-    return feedstocks_to_skip
+    return feedstocks
 
 
 class Feedstock_Meta_Yaml:
@@ -536,6 +538,8 @@ def tick_feedstocks(gh_password=None,
                     gh_user=None,
                     no_regenerate=False,
                     dry_run=False,
+                    targetfile=None,
+                    target_feedstocks=None,
                     limit_feedstocks=-1,
                     limit_outdated=-1,
                     skipfile=None,
@@ -545,12 +549,19 @@ def tick_feedstocks(gh_password=None,
     a dependency conflict with other feedstocks the user maintains,
     creates forks, ticks versions and hashes, and regenerates,
     then submits a pull
-    :param str|None gh_password: GitHub password or OAuth token (if omitted, check environment vars)
+    :param str|None gh_password: GitHub password or OAuth token (if omitted,
+    check environment vars)
     :param str|None gh_user: GitHub username (can be omitted with OAuth)
-    :param bool no_regenerate: If True, don't regenerate feedstocks before submitting pull requests
-    :param bool dry_run: If True, do not apply generate patches, fork feedstocks, or regenerate
-    :param int limit_feedstocks: If greater than -1, maximum number of feedstocks to retrieve and check for updateds
-    :param int limit_outdated: If greater than -1, maximum number of outdated feedstocks to check for patching
+    :param bool no_regenerate: If True, don't regenerate feedstocks before
+    submitting pull requests
+    :param bool dry_run: If True, do not apply generate patches, fork
+    feedstocks, or regenerate
+    :param str targetfile: path to file listing feedstocks to use
+    :param list|set target_feedstocks: list or set of feedstocks to use
+    :param int limit_feedstocks: If greater than -1, maximum number of
+    feedstocks to retrieve and check for updateds
+    :param int limit_outdated: If greater than -1, maximum number of outdated
+    feedstocks to check for patching
     :param str skipfile: path to file listing feedstocks to skip
     :param list|set skip_feedstocks: list or set of feedstocks to skip
     """
@@ -568,15 +579,34 @@ def tick_feedstocks(gh_password=None,
         g = Github(gh_user, gh_password)
         user = g.get_user()
 
-    if skip_feedstocks is None:
-        skip_feedstocks = list()
+    targets = set()
+    if isinstance(target_feedstocks, (set, list)):
+        targets.update(target_feedstocks)
+    targets.update(parse_feedstock_file(targetfile))
 
-    if skipfile is None:
-        skips = set(skip_feedstocks)
+    skips = set()
+    if isinstance(skip_feedstocks, (set, list)):
+        skips.update(skip_feedstocks)
+    skips.update(parse_feedstock_file(skipfile))
+
+    if len(targets) > 0:
+        # If iwe have specific target feedstocks
+        # only retrieve those
+        skip_count = len(targets & skips)
+        feedstocks = []
+        for name in targets - skips:
+            repo = g.get_repo('conda-forge/{}'.format(name))
+            try:
+                repo.full_name
+                feedstocks.append(repo)
+            except UnknownObjectException:
+                # couldn't get repo, so ignore it
+                continue
+
     else:
-        skips = set(skip_feedstocks + parse_skipfile(skipfile))
-
-    skip_count, feedstocks = user_feedstocks(user, limit_feedstocks, skips)
+        # If we have no specific targets
+        # review all teams and filter based on those
+        skip_count, feedstocks = user_feedstocks(user, limit_feedstocks, skips)
 
     can_be_updated = list()
     status_error_dict = defaultdict(list)
@@ -734,6 +764,15 @@ def main():
                         dest='dry_run',
                         help='If present, skip applying patches, forking, '
                         'and regenerating feedstocks')
+    parser.add_argument('--target-feedstocks-file',
+                        default=None,
+                        dest='targetfile',
+                        help='File listing feedstocks to check')
+    parser.add_argument('--target-feedstocks',
+                        default=None,
+                        dest='target_feedstocks',
+                        nargs='*'
+                        help='List of feedstocks to update')
     parser.add_argument('--limit-feedstocks',
                         type=int,
                         default=-1,
@@ -744,19 +783,23 @@ def main():
                         default=-1,
                         dest='limit_outdated',
                         help='Maximum number of outdated feedstocks to try and patch')
-    parser.add_argument('--skipfile',
+    parser.add_argument('--skip-feedstocks-file',
                         default=None,
+                        dest='skipfile,'
                         help='File listing feedstocks to skip')
     parser.add_argument('--skip-feedstocks',
                         default=None,
                         dest='skip_feedstocks',
-                        nargs='*')
+                        nargs='*',
+                        help='List of feedstocks to skip updating')
     args = parser.parse_args()
 
     tick_feedstocks(args.gh_password,
                     args.gh_user,
                     args.no_regenerate or args.no_rerender,
                     args.dry_run,
+                    args.targetfile,
+                    args.target_feedstocks,
                     args.limit_feedstocks,
                     args.limit_outdated,
                     args.skipfile,
