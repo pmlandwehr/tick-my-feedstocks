@@ -269,7 +269,8 @@ class Feedstock_Meta_Yaml:
         """
         Reset the build number
         :param int|str new_number: New build number
-        :return: `bool` -- True if replacement successful or unneeded, False if failed
+        :return: `bool` -- True if replacement successful or unneeded, False if
+        failed
         """
         if str(new_number) == self._yaml_dict['build']['number']:
             # Nothing to do
@@ -348,7 +349,8 @@ def pypi_org_sha(package_name, version):
     Scrape pypi.org for SHA256 of the source bundle
     :param str package_name: Name of package (PROPER case)
     :param str version: version for which to get sha
-    :return: `str,str|None,None` -- bundle type,SHA for source, None,None if can't be found
+    :return: `str,str|None,None` -- bundle type,SHA for source, None,None if
+    can't be found
     """
     import warnings
     from bs4 import BeautifulSoup
@@ -404,8 +406,10 @@ def user_feedstocks(user, limit=-1, skips=None):
     """
     :param github.AuthenticatedUser.AutheticatedUser user:
     :param  int limit: If greater than -1, max number of feedstocks to return
-    :param list|set skips: an iterable of the names of feedstocks that should be skipped
-    :return: `tpl(int,list)` -- count of skipped feedstocks, list of conda-forge feedstocks the user maintains
+    :param list|set skips: an iterable of the names of feedstocks that should
+    be skipped
+    :return: `tpl(int,list)` -- count of skipped feedstocks, list of
+    conda-forge feedstocks the user maintains
     """
     if skips is None:
         skips = set()
@@ -439,9 +443,11 @@ def user_feedstocks(user, limit=-1, skips=None):
 
 def feedstock_status(feedstock):
     """
-    Return whether a feedstock is out of date and any information needed to update it.
+    Return whether a feedstock is out of date and any information needed to
+    update it.
     :param github.Repository.Repository feedstock:
-    :return: `tpl(bool,bool,None|status_data)` -- bools indicating success and either None or a status_data tuple
+    :return: `tpl(bool,bool,None|status_data)` -- bools indicating success and
+    either None or a status_data tuple
     """
     fs_contents = feedstock.get_contents('recipe/meta.yaml')
     try:
@@ -470,7 +476,8 @@ def even_feedstock_fork(user, feedstock):
     If the user has a fork that's ahead of the feedstock, do nothing
     :param github.AuthenticatedUser.AuthenticatedUser user: GitHub user
     :param github.Repository.Repository feedstock: conda-forge feedstock
-    :return: `None|github.Repository.Repository` -- None if no fork, else the repository
+    :return: `None|github.Repository.Repository` -- None if no fork, else the
+    repository
     """
     try:
         fork = user.create_fork(feedstock)
@@ -528,8 +535,9 @@ def regenerate_fork(fork):
         working_dir.cleanup()
         return False
 
-    commit_msg = 'MNT: Updated the feedstock for conda-smithy version {}.'.format(
-        conda_smithy.__version__)
+    commit_msg = \
+        'MNT: Updated the feedstock for conda-smithy version {}.'.format(
+            conda_smithy.__version__)
     r.git.add('-A')
     r.index.commit(commit_msg,
                    author=Actor(fork.owner.login, fork.owner.email))
