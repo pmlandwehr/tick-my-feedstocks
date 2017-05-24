@@ -69,16 +69,15 @@ IMPORTANT NOTES:
 # TODO Modify --dry-run flag to list which repos need forks.
 # TODO Modify --dry-run flag to list which forks are dirty.
 # TODO Modify --dry-run to also cover regeneration
-# TODO Add support for skipping repos that are deprecated. (e.g. fake-factory)
 # TODO skip upgrading from a stable release to a dev release (e.g. ghost.py)
+#  (This is useful but not critical, since we can provide skip lists)
 # TODO Test python 2.7 compatability (should work, but untested.)
-# TODO Test python 3.4 compatability (should work, but untested.)
 # TODO Deeper check of dependency changes in meta.yaml.
 # TODO Check installed conda-smithy against current feedstock conda-smithy.
 # TODO Check if already-forked feedstocks have open pulls.
 # TODO maintainer_can_modify flag when submitting pull
-#   Note that this isn't supported by pygithub yet, so would require
-#   switching back to requests
+#  Note that this isn't supported by pygithub yet, so would require
+#  switching back to requests
 # TODO Suppress regeneration text output
 # TODO improve the tqdm progress bar during regeneration.
 
