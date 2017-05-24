@@ -721,12 +721,15 @@ def tick_feedstocks(gh_password=None,
 
         pull_count += 1
 
-    print('{} feedstocks skipped.'.format(skip_count))
-    print('{} feedstocks checked.'.format(len(feedstocks)))
-    print('  {} were out-of-date.'.format(len(can_be_updated)))
-    print('  {} were independent of other out-of-date feedstocks'.format(
-        len(indep_updates)))
-    print('  {} had pulls submitted.'.format(pull_count))
+    print('{} feedstock(s) skipped.'.format(skip_count))
+    print('{} feedstock(s) checked.'.format(len(feedstocks)))
+    print('  {} feedstock(s) '
+          'were out-of-date.'.format(len(can_be_updated)))
+    print('  {} feedstock(s) '
+          'were independent of other out-of-date feedstocks'.format(
+              len(indep_updates)))
+    print('  {} feedstock(s) '
+          'had pulls submitted.'.format(pull_count))
     print('-----')
 
     for msg, cur_dict in [("Couldn't check status", status_error_dict),
