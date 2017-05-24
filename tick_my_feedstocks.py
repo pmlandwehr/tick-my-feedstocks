@@ -493,7 +493,7 @@ def even_feedstock_fork(user, feedstock):
         # leave everything alone - don't want a mess.
         return None
 
-    elif comparison.ahead_by > 0:
+    if comparison.ahead_by > 0:
         # head is *ahead* of base
         # conda-forge is ahead of the fork
         # delete fork and clone from scratch
