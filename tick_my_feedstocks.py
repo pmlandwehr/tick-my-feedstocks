@@ -73,8 +73,6 @@ IMPORTANT NOTES:
 # TODO skip upgrading from a stable release to a dev release (e.g. ghost.py)
 # TODO Test python 2.7 compatability (should work, but untested.)
 # TODO Test python 3.4 compatability (should work, but untested.)
-# TODO Test python 3.5 compatability (worked, but un-retested.)
-# TODO Test python 3.6 compatability (worked, but un-retested.)
 # TODO Deeper check of dependency changes in meta.yaml.
 # TODO Check installed conda-smithy against current feedstock conda-smithy.
 # TODO Check if already-forked feedstocks have open pulls.
