@@ -2,7 +2,7 @@
 
 # conda execute
 # env:
-#  - python ==3.5
+#  - python >=2.7
 #  - conda-build
 #  - conda-smithy
 #  - beautifulsoup4
@@ -71,7 +71,6 @@ IMPORTANT NOTES:
 # TODO Modify --dry-run to also cover regeneration
 # TODO skip upgrading from a stable release to a dev release (e.g. ghost.py)
 #  (This is useful but not critical, since we can provide skip lists)
-# TODO Test python 2.7 compatability (should work, but untested.)
 # TODO Deeper check of dependency changes in meta.yaml.
 # TODO Check installed conda-smithy against current feedstock conda-smithy.
 # TODO Check if already-forked feedstocks have open pulls.
