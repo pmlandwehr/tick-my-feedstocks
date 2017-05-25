@@ -478,18 +478,37 @@ def even_feedstock_fork(user, feedstock):
     try:
         fork = user.create_fork(feedstock)
     except UnknownObjectException:
-        raise UnknownObjectException('Issue with GitHub API when forking')
-    except GithubException:
-        raise GithubException('Issue with GitHub API when forking')
+        raise ValueError('Got 404 when creating fork')
+    try:
+        comparison = fork.compare(base='{}:master'.format(user.login),
+                                  head='conda-forge:master')
+    except UnknownObjectException:
+        raise ValueError('Got 404 when comparing forks, left new fork')
 
-    comparison = fork.compare(base='{}:master'.format(user.login),
-                              head='conda-forge:master')
+        # TODO Solve the mystery of why github times are misbehaving
+        #  and then check if a fork was just created and can be purged.
+        # from datetime import datetime
+        # seconds_since_creation = (
+        #     datetime.now() - fork.created_at).total_seconds()
+        # print('seconds_since_creation = {}'.format(seconds_since_creation))
+        # if seconds_since_creation > 10:
+        #     # Assume fork is old, so don't clean it up
+        #     raise ValueError('Got 404 when comparing forks, left fork')
+        #
+        # try:
+        #     fork.delete()
+        # except UnknownObjectException:
+        #     raise ValueError(
+        #         "Got 404 when comparing forks, couldn't clean up")
+        #
+        # raise ValueError(
+        #     'Got 404 when comparing forks, cleaned up fork')
 
     if comparison.behind_by > 0:
         # head is *behind* the base
         # conda-forge is behind the fork
         # leave everything alone - don't want a mess.
-        return None
+        raise ValueError('local fork is ahead of conda-forge')
 
     if comparison.ahead_by > 0:
         # head is *ahead* of base
@@ -500,14 +519,12 @@ def even_feedstock_fork(user, feedstock):
         except GithubException:
             # couldn't delete feedstock
             # give up, don't want a mess.
-            raise GithubException("Couldn't delete outdated fork")
+            raise ValueError("Couldn't delete outdated fork")
 
         try:
             fork = user.create_fork(feedstock)
         except UnknownObjectException:
-            raise UnknownObjectException('Issue with GitHub API when forking')
-        except GithubException:
-            raise GithubException('Issue with GitHub API when forking')
+            raise ValueError('Got 404 when re-creating fork')
 
     return fork
 
@@ -609,8 +626,9 @@ def tick_feedstocks(gh_password=None,
                 repo.full_name
                 feedstocks.append(repo)
             except UnknownObjectException:
-                # couldn't get repo, so ignore it
-                continue
+                # couldn't get repo, so error out
+                raise ValueError(
+                    "Couldn't retrieve repository: {}".format(name))
 
     else:
         # If we have no specific targets
@@ -636,6 +654,7 @@ def tick_feedstocks(gh_password=None,
     successful_forks = list()
     successful_updates = list()
     patch_error_dict = defaultdict(list)
+    fork_error_dict = defaultdict(list)
     error_dict = defaultdict(list)
     for update in tqdm(indep_updates, desc='Updating feedstocks'):
 
@@ -671,12 +690,12 @@ def tick_feedstocks(gh_password=None,
         # make fork
         try:
             fork = even_feedstock_fork(user, update.fs)
-        except (UnknownObjectException, GithubException) as e:
-            # TODO this should be a better error catch
-            fork = None
+        except ValueError as e:
+            fork_error_dict[e.args[0]].append(update.fs.name)
+            continue
 
         if fork is None:
-            error_dict["Couldn't fork"].append(update.fs.name)
+            fork_error_dict["Unspecified failure"].append(update.fs.name)
             continue
 
         # patch fork
@@ -729,17 +748,19 @@ def tick_feedstocks(gh_password=None,
     print('-----')
 
     for msg, cur_dict in [("Couldn't check status", status_error_dict),
-                          ("Couldn't create patch", patch_error_dict)]:
-        if len(cur_dict) > 0:
-            print('{}:'.format(msg))
-            for error_msg in cur_dict:
-                print('  {} ({}):'.format(error_msg,
-                                          len(cur_dict[error_msg])))
-                for name in cur_dict[error_msg]:
-                    print('    {}'.format(name))
+                          ("Couldn't create patch", patch_error_dict),
+                          ("Error when forking", fork_error_dict)]:
+        if len(cur_dict) < 1:
+            continue
 
-    for error_msg in ["Couldn't fork",
-                      "Couldn't apply patch",
+        print('{}:'.format(msg))
+        for error_msg in cur_dict:
+            print('  {} ({}):'.format(error_msg,
+                                      len(cur_dict[error_msg])))
+            for name in cur_dict[error_msg]:
+                print('    {}'.format(name))
+
+    for error_msg in ["Couldn't apply patch",
                       "Couldn't create pull"]:
         if error_msg not in error_dict:
             continue
