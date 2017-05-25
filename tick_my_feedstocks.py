@@ -285,7 +285,7 @@ class Feedstock_Meta_Yaml:
         else:
             build_num_regex = re.compile('number: *{}'.format(
                 self._yaml_dict['build']['number']))
-            matches = re.findall(build_num_regex, self.text)
+            matches = re.findall(build_num_regex, self._text)
             if len(matches) > 1:
                 # Multiple number lines
                 # So give up
