@@ -725,7 +725,7 @@ def tick_feedstocks(gh_password=None,
                                   'regenerated if needed. '
                                   '(Double-check reqs!)',
                                   body='Made using `tick_my_feedstocks.py`!\n'
-                                  '-[ ] **I have vetted this recipe**',
+                                  '- [ ] **I have vetted this recipe**',
                                   head='{}:master'.format(gh_user),
                                   base='master')
         except GithubException:
