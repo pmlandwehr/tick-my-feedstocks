@@ -3,15 +3,14 @@
 # conda execute
 # env:
 #  - python >=2.7
-#  - conda-build
-#  - conda-smithy
+#  - setuptools
 #  - beautifulsoup4
+#  - conda-smithy
 #  - gitpython
 #  - jinja2
-#  - pygithub >=1.29
+#  - pygithub >=1.29,<2
 #  - pyyaml
 #  - requests
-#  - setuptools
 #  - tqdm
 # channels:
 #  - conda-forge
