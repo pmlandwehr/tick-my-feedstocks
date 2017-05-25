@@ -16,14 +16,17 @@ def main():
         long_descripton=long_description,
         author='Peter M. Landwehr',
         author_email='pmlandwehr@gmail.com',
-        url='https://github.com/pmlandwehr/cf_maintainer_bot',
+        url='https://github.com/pmlandwehr/tick-my-feedstocks',
         license='BSD 3-Clause',
         classifiers=[
             'Development Status :: 3 - Alpha',
             'Intended Audience :: Developers',
             'Topic :: Software Development :: Build Tools',
             'License :: OSI Approved :: BSD License',
+            'Programming Language :: Python :: 2.7',
+            'Programming Language :: Python :: 3.4',
             'Programming Language :: Python :: 3.5',
+            'Programming Language :: Python :: 3.6'
         ],
         keywords='conda conda-forge',
         packages=find_packages(),

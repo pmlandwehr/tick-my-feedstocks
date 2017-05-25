@@ -1,10 +1,11 @@
-python ==3.5
+python
 beautifulsoup4
-conda_smithy
+conda-build
+conda-smithy
 gitpython
 jinja2
 pyyaml
-pygithub
+pygithub >=1.29
 requests
 setuptools
 tqdm
