@@ -98,6 +98,7 @@ import os
 from pkg_resources import parse_version
 import re
 import requests
+import shutil
 import tempfile
 from tqdm import tqdm
 import yaml
@@ -537,15 +538,15 @@ def regenerate_fork(fork):
     # Would need me to pass gh_user, gh_password
     # subprocess.run(["./renderer.sh", gh_user, gh_password, fork.name])
 
-    working_dir = tempfile.TemporaryDirectory()
-    local_repo_dir = os.path.join(working_dir.name, fork.name)
+    working_dir = tempfile.mkdtemp()
+    local_repo_dir = os.path.join(working_dir, fork.name)
     r = Repo.clone_from(fork.clone_url, local_repo_dir)
     conda_smithy.configure_feedstock.main(local_repo_dir)
 
     if not r.is_dirty():
         # No changes made during regeneration.
         # Clean up and return
-        working_dir.cleanup()
+        shutil.rmtree(working_dir)
         return False
 
     commit_msg = \
@@ -556,7 +557,7 @@ def regenerate_fork(fork):
                    author=Actor(fork.owner.login, fork.owner.email))
     r.git.push()
 
-    working_dir.cleanup()
+    shutil.rmtree(working_dir)
     return True
 
 
