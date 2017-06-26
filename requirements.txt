@@ -1,11 +1,11 @@
-python
+# This list is duplicated in tick_my_feedstocks.recipe/meta.yaml.
+
+setuptools
 beautifulsoup4
-conda-build
 conda-smithy
 gitpython
 jinja2
+pygithub >=1.29,<2
 pyyaml
-pygithub >=1.29
 requests
-setuptools
 tqdm
