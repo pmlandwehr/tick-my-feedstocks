@@ -5,7 +5,7 @@
 #  - python >=2.7
 #  - setuptools
 #  - beautifulsoup4
-#  - conda-build >=2.1.15
+#  - conda-build >=2.1.15,<3
 #  - conda-build-all >=1.0.4
 #  - conda-smithy
 #  - gitpython
