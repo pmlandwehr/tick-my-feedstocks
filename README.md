@@ -43,12 +43,12 @@ If you use [`conda execute`](https://github.com/pelson/conda-execute) to run the
 2. Attempt to determine _F_, the subset of feedstocks that need updating
 3. Attempt to determine <em>F<sub>i</sub></em>, the subset of _F_ that has no dependencies on other members of _F_.
 4. Attempts to patch each feedstock in <em>F<sub>i</sub></em> by:
-  1. Creating a new commit containing:
-    1. A modified `meta.yaml` with the new version number
-    2. A modified `meta.yaml` with the `sha256` checksum for the new version.
-    3. A modified `meta.yaml` with the build number reset to `0`.
-  2. Creating a fork of the feedstock for the authorized user.
-  3. Applying the new commit to the forked feedstock.
+    1. Creating a new commit containing:
+        1. A modified `meta.yaml` with the new version number
+        2. A modified `meta.yaml` with the `sha256` checksum for the new version.
+        3. A modified `meta.yaml` with the build number reset to `0`.
+    2. Creating a fork of the feedstock for the authorized user.
+    3. Applying the new commit to the forked feedstock.
 
 5. Regenerating all of the forked feedstocks using the installed version of [conda-smithy](https://github.com/conda-forge/conda-smithy).
 
