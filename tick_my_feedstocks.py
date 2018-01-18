@@ -5,6 +5,8 @@
 #  - python >=2.7
 #  - setuptools
 #  - beautifulsoup4
+#  - conda-build >=2.1.15
+#  - conda-build-all >=1.0.4
 #  - conda-smithy
 #  - gitpython
 #  - jinja2
@@ -80,6 +82,10 @@ IMPORTANT NOTES:
 # TODO improve the tqdm progress bar during regeneration.
 
 import argparse
+import os
+import re
+import shutil
+import tempfile
 from base64 import b64encode
 from collections import defaultdict
 from collections import namedtuple
@@ -92,12 +98,8 @@ from github import GithubException
 from github import UnknownObjectException
 from jinja2 import Template
 from jinja2 import UndefinedError
-import os
 from pkg_resources import parse_version
-import re
 import requests
-import shutil
-import tempfile
 from tqdm import tqdm
 import yaml
 
@@ -142,8 +144,11 @@ def parse_feedstock_file(feedstock_fpath):
     """
     from itertools import chain
 
-    if not (isinstance(feedstock_fpath, str) and
-            os.path.exists(feedstock_fpath)):
+    try:
+        if (not os.path.exists(feedstock_fpath)) \
+                or (not os.path.isfile(feedstock_fpath)):
+            return list()
+    except TypeError:
         return list()
 
     try:
